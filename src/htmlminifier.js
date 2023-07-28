@@ -1,7 +1,7 @@
 import CleanCSS from 'clean-css';
 import { decodeHTMLStrict, decodeHTML } from 'entities';
 import RelateURL from 'relateurl';
-import { minify as terser } from 'terser';
+import { minify as swc } from '@swc/core';
 
 import { HTMLParser, endTag } from './htmlparser.js';
 import TokenChain from './tokenchain.js';
@@ -699,10 +699,10 @@ const processOptions = (inputOptions) => {
         return;
       }
 
-      const terserOptions = typeof option === 'object' ? option : {};
+      const swcOptions = typeof option === 'object' ? option : {};
 
-      terserOptions.parse = {
-        ...terserOptions.parse,
+      swcOptions.parse = {
+        ...swcOptions.parse,
         bare_returns: false
       };
 
@@ -710,10 +710,10 @@ const processOptions = (inputOptions) => {
         const start = text.match(/^\s*<!--.*/);
         const code = start ? text.slice(start[0].length).replace(/\n\s*-->\s*$/, '') : text;
 
-        terserOptions.parse.bare_returns = inline;
+        swcOptions.parse.bare_returns = inline;
 
         try {
-          const result = await terser(code, terserOptions);
+          const result = await swc(code, swcOptions);
           return result.code.replace(/;$/, '');
         } catch (error) {
           options.log(error);
